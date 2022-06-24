@@ -1,0 +1,107 @@
+# Step 1: Prepping Pi 
+
+### First up, let's get or Pi ready to roll with all of the required software/settings
+
+1. Download the [RPI Imager](https://www.raspberrypi.com/software/)
+2. Choose your preferred OS and Storage device. I will be using the 32-bit Raspberry Pi OS on a 32gb SD card.
+3. Eject
+
+### Hardware Setup
+
+Next step is to put all the pieces together. This is quite intuitive, so I will be quick here and drop a picture to reference.
+  1. Insert SD card (Located on underside of PI)
+  2. Insert USB Drive & Other USB Peripherals (including your camera/camera cable) 
+  3. Connect Pi to display with HDMI
+  4. Finally, connect your Pi to power
+  
+### Initialization & Disk Utilities
+
+Once the Pi boots up for the first time, you will be shown a setup screen. Go ahead and fill that in and make note of system name, new passwords and all that jazz. Ensure you connect to the same Wifi as the machine you will SSH into Pi with. 
+Reboot.
+```
+$ sudo shutdown now -r
+```
+If you formatted your disk to FAT32, skip to the next section, "SSH Setup." If you formatted your disk to exFAT or NTFS, we need to install some utilities before we move on.
+Open terminal on RPI.
+For exFAT formats, run:
+```
+$ sudo apt-get install exfat-fuse exfat-utils
+```
+and for NTFS formats, run:
+```
+$ sudo apt-get install ntfs-3g
+```
+Reboot.
+```
+$ sudo shutdown now -r
+```
+Great. Now your RPI should properly recognize your SD/USB devices! 
+  
+### SSH Setup
+For the remainder of this project, we will be utilizing SSH to program our Pi. You could do all of this on your Pi directly if you'd like, but I'd highly recommend using SSH unless you don't have another machine to do the work on.
+To set up SSH, we must first allow SSH connections within Pi. In your terminal:
+```
+$ sudo raspi-config
+```
+```
+On the menu, select "Interfacing Options" >> Navigate to "SSH" >> Select "Yes" >> Hit "OK" >> Hit "Finish"
+```
+
+Great. Now that we can connect via SSH, we need the IP address for our Pi. In terminal once more:
+```
+$ ifconfig
+```
+The IP address we are looking for is the inet xxx.xx.x.xx in the "wlan0" section
+We now have everything we need to SSH into our Pi. On your non-pi machine (Mac, Windows Machine, etc) open up Terminal and type :
+```
+$ ssh pi@{Your Pi IP Address}
+```
+In my case, this looks like:
+```
+$ ssh pi@10.0.0.136
+```
+Enter the password you set during the initial setup of Raspbian. If you did not set a password, the default is "raspberry."
+
+Note: Get a crazy man-in-the-middle warning that looks like this?
+```
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the RSA key sent by the remote host is
+bx:fa:bx:b4:51:fe:xe:c7:1f:xx:ff:bf:4a:47:68:4a.
+Please contact your system administrator.
+Add correct host key in /Users/myname/.ssh/known_hosts to get rid of this message.
+Offending RSA key in /Users/myname/.ssh/known_hosts:1
+RSA host key for 192.168.xx.xx has changed and you have requested strict checking.
+Host key verification failed.
+```
+Never fear! This is easily fixed by running the following command:
+```
+ssh-keygen -R {Your Pi IP Address}
+```
+Attempt to SSH back into the Pi again. This should fix you right up!
+### A Few Last Configurations
+Raspbian is a fantastic OS, but like other great OS's, it has it's share of crapware. Namely, Wolfram. Purging them will free up a bunch of space on our SD drive. In terminal:
+```
+$ sudo apt-get purge wolfram-engine
+$ sudo apt-get clean
+$ sudo apt-get autoremove
+```
+Next, let's open up our file system a bit more to include all available memory. In terminal:
+```
+$ sudo raspi-config
+```
+On the menu, select "Advanced Options" >> Navigate to "Expand File System" >> Hit "Enter" >> Hit "Finish"
+And lastly, let's update and upgrade all of our packages. In terminal:
+```
+$ sudo apt-get update && sudo apt-get upgrade
+```
+Reboot.
+```
+$ sudo shutdown now -r
+```
+## Next Up..
+Let's move on to Step 2 in our project- The Build. See you there!
